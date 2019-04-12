@@ -1,12 +1,12 @@
 package com.template.resource;
 
-import java.net.URI;
 import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.template.event.RecursoCriadoEvent;
 import com.template.model.Categoria;
 import com.template.repository.CategoriaRepository;
 
@@ -27,6 +27,9 @@ public class CategoriaResource {
 	@Autowired
 	private CategoriaRepository categoriaRepository;
 	
+	@Autowired
+	private ApplicationEventPublisher publisher;
+	
 	@GetMapping
 	public List<Categoria> listar(){
 		return categoriaRepository.findAll();
@@ -36,14 +39,11 @@ public class CategoriaResource {
 	public ResponseEntity<Categoria> criar(@Valid @RequestBody Categoria categotia, HttpServletResponse http) {
 		Categoria categoriaSalva = categoriaRepository.save(categotia);
 
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{codigo}")
-		.buildAndExpand(categoriaSalva.getCodigo()).toUri();
-		http.setHeader("Location", uri.toASCIIString());
-		
-		
-		return ResponseEntity.created(uri).body(categoriaSalva);
+		publisher.publishEvent(new RecursoCriadoEvent(this, http, categoriaSalva.getCodigo()));
+
+		return ResponseEntity.status(HttpStatus.CREATED).body(categoriaSalva);
 	}
-	
+
 	@GetMapping("/{codigo}")
 	public ResponseEntity<Categoria> buscarPeloCodigo(@PathVariable Long codigo) {
 
