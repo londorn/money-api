@@ -2,7 +2,7 @@ package com.template.config.property;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties("money")
+@ConfigurationProperties("moneyApiProperty")
 public class MoneyApiProperty {
 
 	private String originPermitida = "http://localhost:8000";

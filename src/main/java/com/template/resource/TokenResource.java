@@ -20,13 +20,13 @@ import com.template.config.property.MoneyApiProperty;
 public class TokenResource {
 	
 	@Autowired
-	private MoneyApiProperty money;
+	private MoneyApiProperty moneyApiProperty;
 
 	@DeleteMapping("/revoke")
 	public void revoke(HttpServletRequest req, HttpServletResponse resp) {
 		Cookie cookie = new Cookie("refreshToken", null);
 		cookie.setHttpOnly(true);
-		cookie.setSecure(money.getSeguranca().isEnableHttps());
+		cookie.setSecure(moneyApiProperty.getSeguranca().isEnableHttps());
 		cookie.setPath(req.getContextPath() + "/oauth/token");
 		cookie.setMaxAge(0);
 		
